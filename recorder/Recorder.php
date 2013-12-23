@@ -40,14 +40,14 @@ class Recorder {
 
     public function run() {
         while (true) {
-            echo "Attente client arduino\n";
+            echo "Attente client arduino ou DAO\n";
             //Le code se bloque jusqu'à ce qu'une nouvelle connexion cliente soit établie
             if (!$this->client = socket_accept($this->socket)) {
                 $errorcode = socket_last_error();
                 $errormsg = socket_strerror($errorcode);
                 throw new DomotiqueException("Erreur avec socket_accept: [$errorcode] $errormsg \n");
             }
-            
+            echo "Il y a un client\n";
             // PHP_NORMAL_READ => arduino / PHP_BINARY_READ => pc
             if (!$buf = socket_read($this->client, 2048, PHP_NORMAL_READ)) {
                 $errorcode = socket_last_error();
@@ -55,29 +55,44 @@ class Recorder {
                 throw new DomotiqueException("Could not read: [$errorcode] $errormsg \n");
             }
             echo "\nLa chaine recu est : " . $buf . "\n";
-            
+
             // Enregistrer une arduino ou demande de la couche DAO ?            
             $parsedBuf = json_decode($buf);
-            if( isset($parsedBuf->{'from'}) && $parsedBuf->{'from'} == "dao"){
-                $this->sendArduino();
-            }else{
+            if (isset($parsedBuf->{'from'}) && $parsedBuf->{'from'} == "dao") {
+                $this->sendArduinos();
+            } else {
                 $this->recordArduino($parsedBuf);
-            }            
+            }
         }
     }
 
     private function sendArduinos() {
         echo "Envoi de la liste des arduinos à la couche DAO\n";
+        foreach ($this->arduinos as $a) {
+            $arduinoArray[] = $a->toArray();
+        }
+        $json = json_encode($arduinoArray);
+        $json .= "\n";
+        
+        if (!socket_write($this->client, $json, 2048)) {
+            $errorcode = socket_last_error();
+            $errormsg = socket_strerror($errorcode);
+            throw new DomainException("Could not write: [$errorcode] $errormsg \n");
+        }
+        echo "Message write successfully to DAO\n";
+        //socket_close($this->socket);
+        
     }
 
     private function recordArduino($parsedRecordDemand) {
-        echo "recordArduino\n";        
+        echo "recordArduino\n";
         $arduino = new Arduino($parsedRecordDemand->{'id'}, $parsedRecordDemand->{'desc'}, $parsedRecordDemand->{'mac'}, $parsedRecordDemand->{'id'}, $parsedRecordDemand->{'port'});
         // L'id des arduinos doit être unique deux arduinos ayant le même id s'écrase
         $this->arduinos[$arduino->getId()] = $arduino;
         //$this->arduinos[] = $arduino;
         echo "Liste des arduinos : ";
         var_dump($this->arduinos);
+        //socket_close($this->socket);
     }
 
 }
