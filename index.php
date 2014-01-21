@@ -1,9 +1,17 @@
 <?php
 
 require_once __DIR__ . '\recorder\Recorder.php';
+// index.php [ipAdresse (optional)] [port (optional)]
 
-$address = "172.20.82.164"; //172.20.82.164   192.168.2.1
-$port = 100;
+if (isset($argv[1]))
+  $address = $argv[1];
+else
+  $address = getHostByName(getHostName());
+
+if (isset($argv[2]))
+  $port = $argv[2];
+else
+  $port = 100;
 
 echo "Demarage du serveur d'enregistrement des arduinos à l'adresse $address sur le port $port\n";
 

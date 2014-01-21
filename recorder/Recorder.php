@@ -80,7 +80,7 @@ class Recorder {
 
   private function recordArduino($parsedRecordDemand) {
     echo "Enregistrement d'une carte Arduino\n";
-    $arduino = new Arduino($parsedRecordDemand->{'id'}, $parsedRecordDemand->{'desc'}, $parsedRecordDemand->{'mac'}, $parsedRecordDemand->{'id'}, $parsedRecordDemand->{'port'});
+    $arduino = new Arduino($parsedRecordDemand->{'id'}, $parsedRecordDemand->{'desc'}, $parsedRecordDemand->{'mac'}, $parsedRecordDemand->{'ip'}, $parsedRecordDemand->{'port'});
     // L'id des arduinos doit être unique deux arduinos ayant le même id s'écrase
     $this->arduinos[$arduino->getId()] = $arduino;
     echo "Liste des arduinos : ";
