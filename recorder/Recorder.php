@@ -52,16 +52,22 @@ class Recorder {
         throw new DomotiqueException("Could not read: [$errorcode] $errormsg \n");
       }
       echo "La chaine recu est : " . $buf . "\n";
-      // Enregistrer une arduino ou demande de la couche DAO ?            
+      // Enregistrer une arduino ou demande de la couche DAO ?
       $parsedBuf = json_decode($buf);
-      if (isset($parsedBuf->{'from'}) && $parsedBuf->{'from'} == "dao") {
+      if (isset($parsedBuf->{'from'}) && isset($parsedBuf->{'action'}) && $parsedBuf->{'from'} == "dao" && $parsedBuf->{'action'} == "getArduinos") {
         $this->sendArduinos();
+      } elseif(isset($parsedBuf->{'from'}) && isset($parsedBuf->{'action'}) && $parsedBuf->{'from'} == "dao" && $parsedBuf->{'action'} == "removeArduino"){
+        $this->removeArduino($parsedBuf->{'ip'});
       } else {
         $this->recordArduino($parsedBuf);
       }
     }
   }
 
+  private function removeArduino($ipArduino) {
+    $key = array_search($ipArduino, $this->arduinos);
+    unset($this->arduinos[$key]);
+  }
   private function sendArduinos() {
     echo "Envoi de la liste des arduinos à la couche DAO\n";
     foreach ($this->arduinos as $a) {
