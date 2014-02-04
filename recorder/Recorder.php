@@ -57,16 +57,16 @@ class Recorder {
       if (isset($parsedBuf->{'from'}) && isset($parsedBuf->{'action'}) && $parsedBuf->{'from'} == "dao" && $parsedBuf->{'action'} == "getArduinos") {
         $this->sendArduinos();
       } elseif(isset($parsedBuf->{'from'}) && isset($parsedBuf->{'action'}) && $parsedBuf->{'from'} == "dao" && $parsedBuf->{'action'} == "removeArduino"){
-        $this->removeArduino($parsedBuf->{'ip'});
+        $this->removeArduino($parsedBuf->{'id'});
       } else {
         $this->recordArduino($parsedBuf);
       }
     }
   }
 
-  private function removeArduino($ipArduino) {
-    $key = array_search($ipArduino, $this->arduinos);
-    unset($this->arduinos[$key]);
+  private function removeArduino($idArduino) {
+    //$key = array_search($idArduino, $this->arduinos);
+    unset($this->arduinos[$idArduino]);
   }
   private function sendArduinos() {
     echo "Envoi de la liste des arduinos à la couche DAO\n";
