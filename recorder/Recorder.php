@@ -56,7 +56,7 @@ class Recorder {
       $parsedBuf = json_decode($buf);
       if (isset($parsedBuf->{'from'}) && isset($parsedBuf->{'action'}) && $parsedBuf->{'from'} == "dao" && $parsedBuf->{'action'} == "getArduinos") {
         $this->sendArduinos();
-      } elseif(isset($parsedBuf->{'from'}) && isset($parsedBuf->{'action'}) && $parsedBuf->{'from'} == "dao" && $parsedBuf->{'action'} == "removeArduino"){
+      } elseif (isset($parsedBuf->{'from'}) && isset($parsedBuf->{'action'}) && $parsedBuf->{'from'} == "dao" && $parsedBuf->{'action'} == "removeArduino") {
         $this->removeArduino($parsedBuf->{'id'});
       } else {
         $this->recordArduino($parsedBuf);
@@ -65,15 +65,19 @@ class Recorder {
   }
 
   private function removeArduino($idArduino) {
-    //$key = array_search($idArduino, $this->arduinos);
     unset($this->arduinos[$idArduino]);
   }
+
   private function sendArduinos() {
     echo "Envoi de la liste des arduinos à la couche DAO\n";
-    foreach ($this->arduinos as $a) {
-      $arduinoArray[] = $a->toArray();
+    $json = "";
+    if (!empty($this->arduinos)) {
+      foreach ($this->arduinos as $a) {
+        $arduinoArray[] = $a->toArray();
+      }
+      $json = json_encode($arduinoArray);
     }
-    $json = json_encode($arduinoArray);
+
     $json .= "\n";
 
     if (!socket_write($this->client, $json, 2048)) {
